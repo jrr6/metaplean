@@ -1,0 +1,6 @@
+name = "metaplean"
+version = "0.1.0"
+defaultTargets = ["metaplean"]
+
+[[lean_lib]]
+name = "Metaplean"
