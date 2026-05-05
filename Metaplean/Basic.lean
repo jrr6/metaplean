@@ -146,3 +146,19 @@ initialize nodotInductiveAttr : AttributeImpl ←
   return attrImpl
 
 end NoDotInductives
+
+/- # `pp.reduce` option -/
+
+section PPReduce
+
+open Lean Meta PrettyPrinter Delaborator SubExpr
+
+@[delab app] def delabReduce : Delab := do
+  let optValue := (← getOptions).get pp.reduce.name pp.reduce.defValue
+  guard <| optValue != "none"
+  let reducer := if optValue = "whnf" then whnf else reduceAll
+  let e ← getExpr
+  let e' ← reducer e
+  withOptions (·.set pp.reduce.name "none") do delab e'
+
+end PPReduce
