@@ -147,6 +147,35 @@ initialize nodotInductiveAttr : AttributeImpl ←
 
 end NoDotInductives
 
+/- # `@[ctors_delab]` for Delaborating an Entire Type -/
+section CtorsDelab
+
+open Lean PrettyPrinter Delaborator
+
+initialize ctorsDelabAttr : AttributeImpl ←
+  let name := `ctors_delab
+  let attrImpl : AttributeImpl := {
+    ref := `ctorsDelabAttr
+    name
+    descr := "Registers the annotated declaration as the delaborator for every constructor of the specified type."
+    applicationTime := .afterCompilation
+    add   := fun decl stx kind => do
+      let stx ← Attribute.Builtin.getIdent stx
+      let nm := stx.getId
+      let info ← getConstInfoInduct nm
+      -- We have to do the following lookup because `KeyedDeclsAttribute` masquerades as a proper
+      -- attribute, but it isn't: it actually programmatically registers a real attribute (along
+      -- with, crucially, its `add` method), so the only way to call `add` is by looking it up
+      let delabAttr := (← attributeMapRef.get).get! `delab
+      for ctor in info.ctors do
+        let stx ← `(attr| delab $(mkIdent <| `app ++ ctor))
+        delabAttr.add decl stx kind
+  }
+  registerBuiltinAttribute attrImpl
+  return attrImpl
+
+end CtorsDelab
+
 /- # `pp.reduce` option -/
 
 section PPReduce
