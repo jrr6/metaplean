@@ -213,7 +213,7 @@ partial def delabSTLCTerm (e : Expr) : DeBruijnDelabM (TSyntax `stlc_term) :=
   | Term.snd _Γ _α _β e => do `(stlc_term| snd $(← delabSTLCTerm e))
   | _ => failure
 
-@[delab app.Typ.unit, delab app.Typ.arr, delab app.Typ.prod] def delabTyp : Delab := do
+@[app_delab Typ.unit, app_delab Typ.arr, app_delab Typ.prod] def delabTyp : Delab := do
   let e ← getExpr
   `(ty{ $(← delabSTLCType e) })
 
@@ -227,11 +227,11 @@ end Delaboration
 
 /- # Demo -/
 
-def foo := tm{ (fn x : unit * unit => fst (snd x, ())) }
-/-- info: foo : Term [] (ty{ unit * unit -> unit }) -/
+private def exampleTerm := tm{ (fn x : unit * unit => fst (snd x, ())) }
+/-- info: exampleTerm : Term [] (ty{ unit * unit -> unit }) -/
 #guard_msgs in
-#check foo
+#check exampleTerm
 
-/-- info: foo.app tm{ ((), ()) } : Term [] ty{ unit } -/
+/-- info: exampleTerm.app tm{ ((), ()) } : Term [] ty{ unit } -/
 #guard_msgs in
-#check tm{ %foo ((), ()) }
+#check tm{ %exampleTerm ((), ()) }
